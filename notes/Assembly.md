@@ -6,14 +6,14 @@ Assembly
 
 ```
 mov bl, byte ptr [rbx] 		; char bl = *(char *)rbx
-							; [] 代表取值
+; [] 代表取值
 
 ; lea 拿後面東西的位置
 lea rax, [0x12345678]		; rax = 0x12345678
-							; [] 取值，lea 取值，取值又取值就回到原本的樣貌
+; [] 取值，lea 取值，取值又取值就回到原本的樣貌
 
 lea rax, [rax*2 + 16]		; rax = rax * 2 + 16
-							; mov 無法直接做到這樣的數值運算，速度可以比較快
+; mov 無法直接做到這樣的數值運算，速度可以比較快
 
 mov eax, 20
 mov ecx, 3
@@ -96,7 +96,43 @@ cmp rax, rbx				; rax - rbx ，結果寫到 EFLAGS(x86) or RFLAGS(x64)
 
 
 
+## nasm - memcpy
+
+```c
+global _start
+section .text
+
+_start:
+// memcpy(dst, src, 6)
+	mov rcx, 6
+	mov rsi, src
+	mov rdi, dst
+	cld
+	rep movsb
+
+section .data
+
+src: db	'hello', 0
+dst: times 6 db 1
+```
+
+- global 是跟 compiler 說程式入口點在哪
+- section 定義這邊是 code 還是 data
+- rcx 當作 counter
+- rep 會去看 rcx 的值，可以當作 for loop ，這邊走六次
+- si 為 source index
+- di 為 destination index
+- si 和 di 在某些指令下會當作 src 和 dst
+- src 這邊是一個 label ，在組語裡面她為一個記憶體地址，只是你不知道會分配到哪個，所以是填一個 label
+- 這個程式就是複製 src 到 dst ，每次一個 byte ，複製 6 次
+- cld 為 clean direction flag
+	- direction flag 也是 EFLAGS Register 中的一種
+	- 這邊是用來在 movsb 的過程中，要加一還是減一
+	- cld 會把 direction flag 清為 0 ，所以是加一
+- movsb 就是會抓 rsi 的值到 rdi 上面，且會做遞增或遞減
 
 
-38:52
 
+
+
+45:01
